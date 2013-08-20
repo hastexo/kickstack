@@ -1,4 +1,8 @@
-define kickstack::nova::service {
+#
+# helper class for defining nova services
+#
+define kickstack::nova::service(
+) {
 
   $servicename = $name
   $classname = "::nova::${servicename}"

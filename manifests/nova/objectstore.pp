@@ -1,3 +1,4 @@
+#
 class kickstack::nova::objectstore inherits kickstack {
 
   include kickstack::nova::config

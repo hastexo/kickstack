@@ -1,4 +1,6 @@
-class kickstack::cinder::config inherits kickstack {
+#
+class kickstack::cinder::config(
+) inherits kickstack {
 
   $sql_conn = getvar("${fact_prefix}cinder_sql_connection")
 

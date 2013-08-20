@@ -1,3 +1,6 @@
+#
+# OS specific parameters
+#
 class kickstack::params {
   $variable_prefix = "kickstack_"
 

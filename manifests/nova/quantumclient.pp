@@ -1,4 +1,6 @@
-class kickstack::nova::quantumclient inherits kickstack {
+#
+class kickstack::nova::quantumclient(
+) inherits kickstack {
 
   include kickstack::nova::config
 

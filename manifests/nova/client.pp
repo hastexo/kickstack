@@ -1,4 +1,5 @@
-class kickstack::nova::client inherits kickstack {
+#
+class kickstack::nova::client {
 
   kickstack::client { 'nova': }
 

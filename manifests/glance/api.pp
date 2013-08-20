@@ -1,4 +1,6 @@
-class kickstack::glance::api inherits kickstack {
+#
+class kickstack::glance::api(
+) inherits kickstack {
 
   include kickstack::glance::config
   include pwgen

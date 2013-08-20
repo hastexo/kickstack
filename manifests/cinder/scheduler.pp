@@ -1,4 +1,6 @@
-class kickstack::cinder::scheduler inherits kickstack {
+#
+class kickstack::cinder::scheduler(
+) inherits kickstack {
 
   include kickstack::cinder::config
 

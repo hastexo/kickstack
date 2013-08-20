@@ -1,4 +1,6 @@
-class kickstack::quantum::agent::metadata inherits kickstack {
+#
+class kickstack::quantum::agent::metadata(
+) inherits kickstack {
 
   include kickstack::quantum::config
 

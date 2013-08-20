@@ -1,4 +1,7 @@
-class kickstack::nova::vncproxy inherits kickstack {
+#
+#
+class kickstack::nova::vncproxy(
+) inherits kickstack {
 
   include kickstack::nova::config
 

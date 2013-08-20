@@ -1,4 +1,6 @@
-class kickstack::quantum::agent::dhcp inherits kickstack {
+#
+class kickstack::quantum::agent::dhcp(
+) inherits kickstack {
 
   include kickstack::quantum::config
 

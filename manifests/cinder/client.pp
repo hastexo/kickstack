@@ -1,4 +1,5 @@
-class kickstack::cinder::client inherits kickstack {
+# installs cinder client
+class kickstack::cinder::client {
 
   kickstack::client { 'cinder': }
 

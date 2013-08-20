@@ -1,4 +1,8 @@
-class kickstack::nova::compute inherits kickstack {
+#
+# base class for configuring nova compute nodes
+#
+class kickstack::nova::compute(
+) inherits kickstack {
 
   include kickstack::nova::config
 

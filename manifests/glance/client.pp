@@ -1,4 +1,5 @@
-class kickstack::glance::client inherits kickstack {
+#
+class kickstack::glance::client {
 
   kickstack::client { 'glance': }
 

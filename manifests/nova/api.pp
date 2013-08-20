@@ -1,4 +1,6 @@
-class kickstack::nova::api inherits kickstack {
+#
+class kickstack::nova::api(
+) inherits kickstack {
 
   include kickstack::nova::config
   include pwgen

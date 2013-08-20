@@ -1,4 +1,6 @@
-class kickstack::quantum::server inherits kickstack {
+#
+class kickstack::quantum::server(
+) inherits kickstack {
 
   include kickstack::quantum::config
   include pwgen

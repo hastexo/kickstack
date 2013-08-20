@@ -1,4 +1,6 @@
-class kickstack::nova::config inherits kickstack {
+#
+class kickstack::nova::config(
+) inherits kickstack {
 
   $sql_conn = getvar("${fact_prefix}nova_sql_connection")
   $glance_api_servers = getvar("${fact_prefix}glance_api_host")

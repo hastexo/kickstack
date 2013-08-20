@@ -1,4 +1,9 @@
-define kickstack::endpoint ( $service_password ) {
+#
+# define resource type that helps populate keystone endpoints
+# for all of the services
+#
+define kickstack::endpoint (
+) {
 
   include pwgen
 

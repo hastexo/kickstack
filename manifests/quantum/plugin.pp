@@ -1,4 +1,6 @@
-class kickstack::quantum::plugin inherits kickstack {
+#
+class kickstack::quantum::plugin(
+) inherits kickstack {
 
   include kickstack::quantum::config
 

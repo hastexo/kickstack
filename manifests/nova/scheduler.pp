@@ -1,3 +1,4 @@
+#
 class kickstack::nova::scheduler inherits kickstack {
 
   include kickstack::nova::config

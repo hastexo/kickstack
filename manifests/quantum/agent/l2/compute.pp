@@ -1,4 +1,6 @@
-class kickstack::quantum::agent::l2::compute inherits kickstack {
+#
+class kickstack::quantum::agent::l2::compute(
+) inherits kickstack {
 
   include kickstack::quantum::config
 

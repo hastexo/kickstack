@@ -1,4 +1,6 @@
-class kickstack::quantum::config inherits kickstack {
+#
+class kickstack::quantum::config(
+) inherits kickstack {
 
   $allow_overlapping_ips = "$::kickstack::quantum_network_type" ? {
     'single-flat' => false,

@@ -1,4 +1,5 @@
-class kickstack::keystone::client inherits kickstack {
+#
+class kickstack::keystone::client {
 
   kickstack::client { 'keystone': }
 

@@ -1,3 +1,4 @@
+#
 class kickstack::nova::conductor inherits kickstack {
 
   include kickstack::nova::config

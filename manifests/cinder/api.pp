@@ -1,4 +1,9 @@
-class kickstack::cinder::api inherits kickstack {
+# Configures the cinder api service
+#
+# == Parameters
+#
+class kickstack::cinder::api(
+) inherits kickstack {
 
   include kickstack::cinder::config
   include pwgen

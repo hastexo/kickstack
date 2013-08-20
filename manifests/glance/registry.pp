@@ -1,4 +1,6 @@
-class kickstack::glance::registry inherits kickstack {
+#
+class kickstack::glance::registry(
+) inherits kickstack {
 
   include kickstack::glance::config
 

@@ -1,4 +1,5 @@
-class kickstack::quantum::client inherits kickstack {
+#
+class kickstack::quantum::client {
 
   kickstack::client { 'quantum': }
 

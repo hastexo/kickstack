@@ -1,4 +1,9 @@
-class kickstack::cinder::volume inherits kickstack {
+#
+# kickstack cinder volume class.
+#
+#
+class kickstack::cinder::volume(
+) inherits kickstack {
 
   include kickstack::cinder::config
 
