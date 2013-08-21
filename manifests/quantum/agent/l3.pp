@@ -29,6 +29,8 @@ class kickstack::quantum::agent::l3(
   #  'provider-router' => $gateway_external_network_id,
   #  default           => undef
   #}
+  $router_id = undef
+  $gateway_external_network_id = undef
 
   class { '::quantum::agents::l3':
     debug                       => $::kickstack::debug,

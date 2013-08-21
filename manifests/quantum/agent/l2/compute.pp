@@ -26,7 +26,7 @@ class kickstack::quantum::agent::l2::compute(
         }
         default: {
           if ! $physnet {
-            fail("\$physnet is expected when tenant network type is not gre")
+            fail('$physnet is expected when tenant network type is not gre')
           }
           $bridge_uplinks = ["br-${data_nic}:${data_nic}"]
           class { 'quantum::agents::ovs':

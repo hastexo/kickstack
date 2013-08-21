@@ -31,14 +31,11 @@ class kickstack (
 
 
   $management_nic      = hiera('management_nic', 'eth2'),
-  # TODO - not sure if I need these
-  #$keystone_public_suffix = $kickstack::params::keystone_public_suffix,
-  #$keystone_admin_suffix = $kickstack::params::keystone_admin_suffix,
 ) inherits kickstack::params {
 
   # should these be here? (probably)
   include openstack::repo
-  if $nameresolution == 'hosts' {
+  if $name_resolution == 'hosts' {
     include kickstack::nameresolution
   }
 

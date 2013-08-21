@@ -6,7 +6,7 @@ class kickstack::quantum::plugin(
   $db_host             = hiera('db_host', '127.0.0.1'),
   $db_type             = hiera('db_type', $::kickstack::db_type),
   $tenant_network_type = hiera('tenant_network_type', 'gre'),
-  $quantum_physnet     = hiera('physnet', 'physnet1'),
+  $physnet             = hiera('physnet', 'physnet1'),
   $vlan_ranges         = hiera('vlan_ranges', '1000:2000'),
   $tunnel_id_ranges    = hiera('tunnel_id_ranges', '1:1000'),
   $plugin              = hiera('network_plugin', 'ovs'),

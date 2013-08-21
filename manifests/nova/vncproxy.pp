@@ -8,7 +8,7 @@ class kickstack::nova::vncproxy(
   include kickstack::nova::config
 
   # Installs the Nova service
-  class { "::nova::vncproxy":
+  class { '::nova::vncproxy':
     enabled        => true,
     ensure_package => $package_ensure,
     host           => get_ip_from_nic($public_nic),
