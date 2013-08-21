@@ -1,37 +1,41 @@
-define kickstack::db {
-
-  include pwgen
-
-  $fact_prefix = $::kickstack::fact_prefix
-  $database = $::kickstack::database
-
-  $servicename = $name
-  $username = $name
-
+#
+# This is a helper define that is used to
+# build out the individual database classes for
+# all of the openstack components
+#
+# Usually data lookups happen from classes, but this
+# is a lot cleaner...
+#
+define kickstack::db(
   $password      = hiera("${name}_db_password"),
+  $user          = hiera("${name}_db_user", $name),
+  $db_name       = hiera("${name}_db_name", $name),
+  $host          = hiera('db_host', '127.0.0.1'),
+  # TODO what should be default be?
+  $allowed_hosts = hiera('db_allowed_hosts', false),
+  $type          = hiera('db_type', $::kickstack::db_type)
+) {
 
-  # Export facts about the database only after configuring the database
-  Class["${servicename}::db::${database}"] -> Exportfact::Export<| tag == "$database" |>
+  if $type == 'mysql' {
 
-  # Configure the service database (classes look like nova::db::mysql or
-  # glance::db:postgresql, for example).
-  # If running on mysql, set the "allowed_hosts" parameter to % so we
-  # can connect to the database from anywhere.
-  case "${database}" {
-    "mysql": {
-      class { "${servicename}::db::mysql":
-            user => "$username",
-            password => "$sql_password",
-            charset => "utf8",
-            allowed_hosts => '%',
-            notify => Kickstack::Exportfact::Export["${name}_sql_connection"]
-      }
+    class { "${name}::db::mysql":
+      dbname        => $db_name,
+      user          => $user,
+      password      => $password,
+      charset       => 'utf8',
+      allowed_hosts => $allowed_hosts,
     }
-    default: {
-      class { "${name}::db::${database}":
-            password => "$sql_password"
-      }
+
+  } elsif $type == 'postgresql' {
+
+    class { "${name}::db::postgresql":
+      dbname   => $db_name,
+      user     => $user,
+      password => $password,
     }
+
+  } else {
+    fail("Unsupported database type: ${type}")
   }
 
   # export the password for this database
