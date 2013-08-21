@@ -18,8 +18,4 @@ class kickstack::cinder::api(
     keystone_auth_host => $keystone_internal_address,
   }
 
-  kickstack::endpoint { 'cinder':
-    service_password => $service_password,
-    require           => Class['::cinder::api']
-  }
 }

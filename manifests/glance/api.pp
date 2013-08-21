@@ -21,9 +21,6 @@ class kickstack::glance::api(
     registry_host     => $reg_host,
   }
 
-  kickstack::endpoint { 'glance':
-    service_password => $service_password,
-    require          => Class['::glance::api']
   data { 'glance_api_host':
     value => get_ip_from_nic($management_nic),
   }

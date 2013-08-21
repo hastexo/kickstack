@@ -27,12 +27,6 @@ class kickstack::nova::api(
     admin_user        => 'nova',
     admin_password    => $admin_password,
     enabled_apis      => 'ec2,osapi_compute,metadata',
-    quantum_metadata_proxy_shared_secret => $quantum_secret
-  }
-
-  kickstack::endpoint { 'nova':
-    service_password => $admin_password,
-    require           => Class['::nova::api']
   }
 
   data { 'nova_metadata_ip':

@@ -13,12 +13,7 @@ class kickstack::quantum::server(
     auth_tenant   => $kickstack::keystone_service_tenant,
     auth_user     => 'quantum',
     auth_password => $service_password,
-    auth_host     => $keystone_internal_address,
-  }
-
-  kickstack::endpoint { 'quantum':
-    service_password => $service_password,
-    require       => Class['::quantum::server']
+    auth_host     => $auth_host,
   }
 
   data { 'quantum_host':
