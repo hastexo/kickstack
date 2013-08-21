@@ -8,17 +8,7 @@ define kickstack::db {
   $servicename = $name
   $username = $name
 
-  # Retrieve the currently set password for the service from its
-  # kickstack_*_sql_connection fact.
-  # If it's unset, generate one and subsequently export it.
-  $sql_connection = getvar("${fact_prefix}${servicename}_sql_connection")
-  $sql_password = $sql_connection ? {
-                  undef => pwgen(),
-                  default => pick(regsubst(getvar("${fact_prefix}${servicename}_sql_connection"),
-                                           ".*://${username}:(.*)@.*/${servicename}",
-                                           '\1'),
-                                  pwgen())
-                  }
+  $password      = hiera("${name}_db_password"),
 
   # Export facts about the database only after configuring the database
   Class["${servicename}::db::${database}"] -> Exportfact::Export<| tag == "$database" |>
@@ -44,10 +34,9 @@ define kickstack::db {
     }
   }
 
-  # Export the MySQL connection string for the service
-  kickstack::exportfact::export { "${name}_sql_connection":
-    value => "${database}://${name}:${sql_password}@${hostname}/${name}",
-    tag => "$database"
+  # export the password for this database
+  data { "${name}_db_password":
+    value => $password,
   }
 
 }

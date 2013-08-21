@@ -5,6 +5,7 @@ class kickstack::keystone::api inherits kickstack {
   $admin_password = pick(getvar("${fact_prefix}keystone_admin_password"),pwgen())
   $admin_tenant = $::kickstack::keystone_admin_tenant
   $sql_conn = getvar("${fact_prefix}keystone_sql_connection")
+  $management_nic   = hiera('management_nic', $::kickstack::management_nic),
 
   class { '::keystone':
     package_ensure => $::kickstack::package_ensure,
@@ -24,16 +25,6 @@ class kickstack::keystone::api inherits kickstack {
     require      => Class['::keystone']
   }
 
-  kickstack::exportfact::export { "keystone_admin_token":
-    value => "${admin_token}",
-    tag => "keystone",
-    require => Class['::keystone']
-  }
-
-  kickstack::exportfact::export { "keystone_internal_address":
-    value => "${hostname}",
-    tag => "keystone",
-    require => Class['::keystone::endpoint']
   }
 
   # Adds the admin credential to keystone.
@@ -53,10 +44,16 @@ class kickstack::keystone::api inherits kickstack {
     require => Class['::keystone::roles::admin']
   }
 
-  kickstack::exportfact::export { "keystone_admin_password":
+  data { 'keystone_admin_password':
     value => $admin_password,
-    tag => "keystone",
-    require => Class['::keystone::roles::admin']
+  }
+
+  data { 'keystone_admin_token':
+    value => $admin_token,
+  }
+
+  data { 'auth_internal_address':
+    value => get_ip_from_nic($::kickstack::management_nic),
   }
 
 }

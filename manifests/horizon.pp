@@ -1,9 +1,9 @@
 #
 class kickstack::horizon(
+  $secret_key = hiera('horizon_secret_key'),
 ) inherits kickstack {
 
   $keystone_host = getvar("${fact_prefix}keystone_internal_address")
-  $secret_key = getvar("${fact_prefix}horizon_secret_key")
   $new_secret_key = pick($secret_key,pwgen())
 
   package { 'memcached':
@@ -37,12 +37,8 @@ class kickstack::horizon(
     listen_ssl            => false;
   }
 
-  unless $secret_key == $new_secret_key {
-    kickstack::exportfact::export { 'horizon_secret_key':
-      value => $new_secret_key,
-      tag => "horizon",
-      require => Class['::horizon']
-    }
+  data { 'horizon_secret_key':
+    value => $secret_key,
   }
 }
 

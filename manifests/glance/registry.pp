@@ -1,5 +1,6 @@
 #
 class kickstack::glance::registry(
+  $management_nic   = hiera('management_nic', $::kickstack::management_nic)
 ) inherits kickstack {
 
   include kickstack::glance::config
@@ -19,10 +20,8 @@ class kickstack::glance::registry(
   }
 
   # Export the registry host name string for the service
-  kickstack::exportfact::export { "glance_registry_host":
-    value => "${hostname}",
-    tag => "glance",
-    require => Class['::glance::registry']
+  data { 'glance_registry_host':
+    value => get_ip_from_nic($management_nic),
   }
 
 }

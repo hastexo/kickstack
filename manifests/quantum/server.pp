@@ -1,5 +1,6 @@
 #
 class kickstack::quantum::server(
+  $management_nic   = hiera('management_nic', $::kickstack::management_nic),
 ) inherits kickstack {
 
   include kickstack::quantum::config
@@ -20,10 +21,8 @@ class kickstack::quantum::server(
     require       => Class['::quantum::server']
   }
 
-  kickstack::exportfact::export { "quantum_host":
-    value => "${hostname}",
-    tag => 'quantum',
-    require => Class['::quantum::server']
+  data { 'quantum_host':
+    value => get_ip_from_nic($management_nic),
   }
 
 }

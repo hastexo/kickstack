@@ -3,6 +3,7 @@
 # for all of the services
 #
 define kickstack::endpoint (
+  $service_password         = hiera("${name}_service_password"),
 ) {
 
   include pwgen
@@ -21,10 +22,8 @@ define kickstack::endpoint (
     require          => Class['::keystone'],
   }
 
-  kickstack::exportfact::export { "${factname}":
-    value => "${service_password}",
-    tag => "${servicename}",
-    require => Class["${classname}"]
+  data { "${name}_service_password":
+    value => $service_password,
   }
 
 }

@@ -3,7 +3,6 @@ class kickstack::glance::api(
 ) inherits kickstack {
 
   include kickstack::glance::config
-  include pwgen
 
   $auth_host = getvar("${fact_prefix}keystone_internal_address")
   $service_password = pick(getvar("${fact_prefix}glance_keystone_password"),pwgen())
@@ -25,11 +24,8 @@ class kickstack::glance::api(
   kickstack::endpoint { 'glance':
     service_password => $service_password,
     require          => Class['::glance::api']
+  data { 'glance_api_host':
+    value => get_ip_from_nic($management_nic),
   }
 
-  kickstack::exportfact::export { 'glance_api_host':
-    value => $hostname,
-    tag => 'glance',
-    require => Class['::glance::api']
-  }
 }

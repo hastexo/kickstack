@@ -1,5 +1,7 @@
 #
 class kickstack::nova::api(
+  $quantum_secret   = hiera('metadata_shared_secret'),
+  $management_nic   = hiera('management_nic', $::kickstack::management_nic)
 ) inherits kickstack {
 
   include kickstack::nova::config
@@ -9,7 +11,6 @@ class kickstack::nova::api(
   # Keystone accordingly. If no fact has been set, generate a password.
   $admin_password = pick(getvar("${fact_prefix}nova_keystone_password"),pwgen())
   $auth_host = getvar("${fact_prefix}keystone_internal_address")
-  $quantum_secret = pick(getvar("${fact_prefix}quantum_metadata_shared_secret"),pwgen())
 
   # Stupid hack: Grizzly packages in Ubuntu Cloud Archive
   # require python-eventlet > 0.9, but the python-nova
@@ -34,16 +35,11 @@ class kickstack::nova::api(
     require           => Class['::nova::api']
   }
 
-  # Export the metadata API IP address and shared secret, to be picked up
-  # by the Quantum metadata proxy agent on the network node
-  kickstack::exportfact::export { "nova_metadata_ip":
-    value => getvar("ipaddress_${nic_management}"),
-    tag => "nova",
-    require => Class['::nova::api']
+  data { 'nova_metadata_ip':
+    value => get_ip_from_nic($management_nic),
   }
-  kickstack::exportfact::export { "quantum_metadata_shared_secret":
+  data { 'quantum_metadata_shared_secret':
     value => $quantum_secret,
-    tag => 'nova',
-    require => Class['::nova::api']
   }
+
 }
