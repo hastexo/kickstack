@@ -1,41 +1,48 @@
 #
 class kickstack::quantum::agent::l2::network(
+  $tenant_network_type = hiera('tenant_network_type', 'gre'),
+  $network_type        = hiera('network_type', 'ovs', 'single-flat'),
+  $plugin              = hiera('network_plugin', 'ovs'),
+  $data_nic            = hiera('data_nic'),
+  $external_nic        = hiera('external_nic'),
+  $physnet             = hiera('quantum_physnet', 'default'),
+  $integration_bridge  = hiera('intergration_bridge', 'br-int'),
+  $external_bridge     = hiera('quantum_external_bridge', 'br-ex'),
+  $tunnel_bridge       = hiera('quantum_tunnel_bridge', 'br-tun'),
 ) inherits kickstack {
 
   include kickstack::quantum::config
 
-  $tenant_network_type = "$::kickstack::quantum_tenant_network_type"
-
-  case "$::kickstack::quantum_plugin" {
+  case $plugin {
     'ovs': {
       case $tenant_network_type {
         'gre': {
-          $local_tunnel_ip = getvar("ipaddress_${nic_data}")
-          $bridge_uplinks = ["${::kickstack::quantum_external_bridge}:${nic_external}"]
+          $local_tunnel_ip = get_ip_from_nic($data_nic)
+          $bridge_uplinks = ["${external_bridge}:${external_nic}"]
 
           # The quantum module creates bridge_uplinks only when
           # bridge_mappings is non-empty. That's bogus for GRE
           # configurations, so create the uplink anyway.
-          ::quantum::plugins::ovs::port { "$bridge_uplinks": }
+          #::quantum::plugins::ovs::port { $bridge_uplinks: }
           class { 'quantum::agents::ovs':
-            bridge_mappings    => [],
-            bridge_uplinks     => [],
-            integration_bridge => $::kickstack::quantum_integration_bridge,
+            bridge_uplinks     => $bridge_uplinks,
+            bridge_mappings    => ["${physnet}:${external_bridge}"],
+            integration_bridge => $integration_bridge,
             enable_tunneling   => true,
             local_ip           => $local_tunnel_ip,
-            tunnel_bridge      => $::kickstack::quantum_tunnel_bridge,
-            require            => Quantum::Plugins::Ovs::Port["$bridge_uplinks"]
+            tunnel_bridge      => $tunnel_bridge,
           }
         }
         default: {
-          $bridge_uplinks = ["br-${nic_data}:${nic_data}"]
-          unless $kickstack::quantum_network_type == 'single-flat' {
-            $bridge_uplinks += ["${::kickstack::quantum_external_bridge}:${nic_external}"]
+          # TODO is this correct? It does not look right?
+          $bridge_uplinks = ["br-${data_nic}:${data_nic}"]
+          unless $network_type == 'single-flat' {
+            $bridge_uplinks += ["${external_bridge}:${external_nic}"]
           }
           class { 'quantum::agents::ovs':
-            bridge_mappings    => ["${::kickstack::quantum_physnet}:br-${nic_data}"],
+            bridge_mappings    => ["${physnet}:br-${data_nic}"],
             bridge_uplinks     => $bridge_uplinks,
-            integration_bridge => $::kickstack::quantum_integration_bridge,
+            integration_bridge => $integration_bridge,
             enable_tunneling   => false,
             local_ip           => '',
           }
@@ -43,9 +50,9 @@ class kickstack::quantum::agent::l2::network(
       }
     }
     'linuxbridge': {
-      class { "quantum::agents::linuxbridge":
-        physical_interface_mappings => "default:$nic_data"
+      class { 'quantum::agents::linuxbridge':
+        physical_interface_mappings => "default:${data_nic}"
       }
     }
-  } 
+  }
 }

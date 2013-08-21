@@ -1,5 +1,8 @@
 #
 class kickstack::quantum::agent::l3(
+  $network_type       = hiera('quantum_network_type', 'per-tenant-router'),
+  $plugin             = hiera('quantum_plugin', 'ovs'),
+  $external_bridge    = hiera('quantum_external_bridge', 'br-ex'),
 ) inherits kickstack {
 
   include kickstack::quantum::config
@@ -8,25 +11,25 @@ class kickstack::quantum::agent::l3(
     name => 'br-ex'
   } 
 
-  class { "::quantum::agents::l3":
-    debug            => $::kickstack::debug,
-    interface_driver => $::kickstack::quantum_plugin ? {
-                          'ovs' => 'quantum.agent.linux.interface.OVSInterfaceDriver',
-                          'linuxbridge' => 'quantum.agent.linux.interface.BridgeInterfaceDriver'
-                        },
-    external_network_bridge => $::kickstack::quantum_external_bridge,
-    use_namespaces   => $::kickstack::quantum_network_type ? {
-                          'per-tenant-router' => true,
-                          default => false
-                        },
-    router_id        => $::kickstack::quantum_network_type ? {
-                          'provider-router' => "$::kickstack::quantum_router_id",
-                          default => undef
-                        },
-    gateway_external_network_id => $::kickstack::quantum_network_type ? {
-                          'provider-router' => "$::kickstack::quantum_gateway_external_network_id",
-                          default => undef
-                        },
-    require => Class['kickstack::quantum::agent::metadata','vswitch::bridge']
+  $interface_driver = $plugin ? {
+    'ovs'         => 'quantum.agent.linux.interface.OVSInterfaceDriver',
+    'linuxbridge' => 'quantum.agent.linux.interface.BridgeInterfaceDriver'
+  }
+  $use_namespaces = $network_type ? {
+    'per-tenant-router' => true,
+    default             => false
+  }
+
+  class { '::quantum::agents::l3':
+    debug                       => $::kickstack::debug,
+    interface_driver            => $interface_driver,
+    external_network_bridge     => $external_bridge,
+    use_namespaces              => $use_namespaces,
+    router_id                   => $router_id,
+    gateway_external_network_id => $gateway_external_network_id,
+    require                     => Class[
+      'kickstack::quantum::agent::metadata',
+      'vswitch::ovs'
+    ]
   }
 }
