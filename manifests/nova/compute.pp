@@ -18,20 +18,4 @@ class kickstack::nova::compute(
     virtio_nic                    => true,
   }
 
-  case "$::kickstack::nova_compute_driver" {
-    'libvirt': {
-      class { '::nova::compute::libvirt':
-        libvirt_type => "$::kickstack::nova_compute_libvirt_type",
-        vncserver_listen => $vncserver_listen_address
-      }
-    }
-    'xenserver': {
-      class { '::nova::compute::xenserver':
-        xenapi_connection_url => "$::kickstack::nova_compute_xenapi_connection_url",
-        xenapi_connection_username => "$::kickstack::nova_compute_xenapi_connection_username",
-        xenapi_connection_password => "$::kickstack::nova_compute_xenapi_connection_password"
-      }
-    }
-  }
-
 }
