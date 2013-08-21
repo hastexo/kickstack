@@ -9,7 +9,7 @@ class kickstack::network_controller {
 
   include kickstack::quantum::config
   include kickstack::quantum::plugin
-  include kickstack::quantum::server 
+  include kickstack::quantum::server
   include kickstack::quantum::agent::metadata
   include kickstack::quantum::agent::l3
   include kickstack::quantum::agent::dhcp
