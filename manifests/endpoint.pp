@@ -4,21 +4,20 @@
 #
 define kickstack::endpoint (
   $service_password         = hiera("${name}_service_password"),
+  $service_public_address   = hiera("${name}_public_address"),
+  $service_admin_address    = hiera("${name}_admin_address", hiera("${name}_public_address")),
+  $service_internal_address = hiera("${name}_internal_address", hiera("${name}_public_address")),
+  $service_tenant           = hiera('service_tenant', 'services'),
+  $service_region           = hiera('region', 'RegionOne'),
 ) {
 
-  include pwgen
-
-  $servicename = $name
-  $factname = "${servicename}_keystone_password"
-  $classname = "${servicename}::keystone::auth"
-
-  # Installs the service user endpoint.
-  class { "${classname}":
+  class { "${name}::keystone::auth":
     password         => $service_password,
-    public_address   => "${hostname}${::kickstack::keystone_public_suffix}",
-    admin_address    => "${hostname}${::kickstack::keystone_admin_suffix}",
-    internal_address => $hostname,
-    region           => "$::kickstack::keystone_region",
+    public_address   => $service_public_address,
+    admin_address    => $service_admin_address,
+    internal_address => $service_internal_address,
+    region           => $service_region,
+    tenant           => $service_tenant,
     require          => Class['::keystone'],
   }
 

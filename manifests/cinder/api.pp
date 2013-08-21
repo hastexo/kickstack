@@ -3,19 +3,21 @@
 # == Parameters
 #
 class kickstack::cinder::api(
+  $service_password    = hiera('cinder_service_password'),
+  $service_user        = hiera('cinder_service_user', 'cinder'),
+  $auth_service_tenant = hiera('auth_service_tenant', $::kickstack::auth_service_tenant),
+  $auth_host           = hiera('auth_internal_address', '127.0.0.1'),
+  $package_ensure      = hiera('package_ensure', 'present')
 ) inherits kickstack {
 
   include kickstack::cinder::config
-  include pwgen
-
-  $service_password = pick(getvar("${fact_prefix}cinder_keystone_password"),pwgen())
-  $keystone_internal_address = getvar("${fact_prefix}keystone_internal_address")
 
   class { '::cinder::api':
-    keystone_tenant   => $kickstack::keystone_service_tenant,
-    keystone_user     => 'cinder',
-    keystone_password => $service_password,
-    keystone_auth_host => $keystone_internal_address,
+    keystone_tenant    => $auth_service_tenant,
+    keystone_user      => $service_user,
+    keystone_password  => $service_password,
+    keystone_auth_host => $auth_host,
+    package_ensure     => $package_ensure,
   }
 
 }

@@ -1,24 +1,35 @@
 #
 class kickstack::glance::api(
+  $db_password      = hiera('glance_db_password'),
+  $db_user          = hiera('glance_db_user', 'glance'),
+  $db_name          = hiera('glance_db_name', 'glance'),
+  $db_host          = hiera('db_host', '127.0.0.1'),
+  $db_type          = hiera('db_type', $::kickstack::db_type),
+  $service_password = hiera('glance_service_password'),
+  $service_user     = hiera('glance_service_user', 'glance'),
+  $service_tenant   = hiera('service_tenant', $::kickstack::auth_service_tenant),
+  $auth_host        = hiera('auth_internal_address', '127.0.0.1'),
+  $registry_host    = hiera('glance_registry_host', '127.0.0.1'),
+  $glance_backend   = hiera('glance_backend', $::kickstack::glance_backend),
+  $verbose          = hiera('verbose', $::kickstack::verbose),
+  $debug            = hiera('debug', $::kickstack::debug),
+  $management_nic   = hiera('management_nic', $::kickstack::management_nic)
 ) inherits kickstack {
 
   include kickstack::glance::config
 
-  $auth_host = getvar("${fact_prefix}keystone_internal_address")
-  $service_password = pick(getvar("${fact_prefix}glance_keystone_password"),pwgen())
-  $sql_conn = getvar("${fact_prefix}glance_sql_connection")
-  $reg_host = getvar("${fact_prefix}glance_registry_host")
+  $sql_connection_string = "${db_type}://${db_user}:${db_password}@${db_host}/${db_name}"
 
   class { '::glance::api':
-    verbose           => $kickstack::verbose,
-    debug             => $kickstack::debug,
+    verbose           => $verbose,
+    debug             => $debug,
     auth_type         => 'keystone',
     auth_host         => $auth_host,
-    keystone_tenant   => $kickstack::keystone_service_tenant,
-    keystone_user     => 'glance',
+    keystone_tenant   => $service_tenant,
+    keystone_user     => $service_user,
     keystone_password => $service_password,
-    sql_connection    => $sql_conn,
-    registry_host     => $reg_host,
+    sql_connection    => $sql_connection_string,
+    registry_host     => $registry_host,
   }
 
   data { 'glance_api_host':

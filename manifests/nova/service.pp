@@ -2,14 +2,14 @@
 # helper class for defining nova services
 #
 define kickstack::nova::service(
+  $package_ensure = hiera('package_ensure', 'present')
 ) {
 
-  $servicename = $name
-  $classname = "::nova::${servicename}"
+  include kickstack::nova::config
 
   # Installs the Nova service
-  class { "${classname}":
-    enabled => true,
-    ensure_package => $::kickstack::package_ensure
+  class { "::nova::${name}":
+    enabled        => true,
+    ensure_package => $package_ensure,
   }
 }
