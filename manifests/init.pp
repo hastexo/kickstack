@@ -1,70 +1,45 @@
 # Class: kickstack
 #
-# This module manages kickstack, a thin wrapper around the Stackforge
-# Puppet modules that enables easy deployment with any Puppet External
-# Node Classifier (ENC), such as Puppet Dashboard, Puppet Enterprise,
-# or The Foreman.
+# The kickstack class serves as a central place to
+# collect global configuration that needs to be globally available
+# to your entire openstack infrastructure
 #
-# Parameters:
-#   fact_prefix - Prefix to be used for the facts passed around
-#     between various nodes in the kickstack installation. If your
-#     Puppet environment manages only one single kickstack deployment,
-#     there is no need to change this. However, if you use one Puppet
-#     environment to manage several kickstack installations, you will
-#     need to set these to distinguish the kickstack installations from
-#     each other.
-#   fact_filename - The name of the file (relative to facter/facts.d)
-#     where kickstack stores its custom facts.
-class kickstack ( 
-  $fact_prefix   = $kickstack::params::fact_prefix,
-  $fact_filename = $kickstack::params::fact_filename,
-  $fact_category = $kickstack::params::fact_category,
-  $package_ensure = $kickstack::params::package_ensure,
-  $name_resolution = $kickstack::params::name_resolution,
-  $verbose       = $kickstack::params::verbose,
-  $debug         = $kickstack::params::debug,
-  $database      = $kickstack::params::database,
-  $rpc           = $kickstack::params::rpc,
-  $rabbit_userid = $kickstack::params::rabbit_userid,
-  $rabbit_virtual_host = $kickstack::params::rabbit_virtual_host,
-  $qpid_username = $kickstack::params::qpid_username,
-  $qpid_realm    = $kickstack::params::qpid_realm,
-  $keystone_region = $kickstack::params::keystone_region,
-  $keystone_public_suffix = $kickstack::params::keystone_public_suffix,
-  $keystone_admin_suffix = $kickstack::params::keystone_admin_suffix,
-  $keystone_admin_tenant = $kickstack::params::keystone_admin_tenant,
-  $keystone_service_tenant = $kickstack::params::keystone_service_tenant,
-  $keystone_admin_email = $kickstack::params::keystone_admin_email,
-  $keystone_admin_password = $kickstack::params::keystone_admin_password,
-  $cinder_backend = $kickstack::params::cinder_backend,
-  $cinder_lvm_pv = $kickstack::params::cinder_lvm_pv,
-  $cinder_lvm_vg = $kickstack::params::cinder_lvm_vg,
-  $cinder_rbd_pool = $kickstack::params::cinder_rbd_pool,
-  $cinder_rbd_user = $kickstack::params::cinder_rbd_user,
+class kickstack (
+  $package_ensure      = hiera('package_ensure', 'present'),
+  $name_resolution     = hiera('name_resolution', 'hosts'),
+  $verbose             = hiera('verbose', false),
+  $debug               = hiera('debug', false),
+
+  # global auth information
+  $auth_region         = hiera('auth_region', 'RegionOne'),
+  $auth_service_tenant = hiera('service_tenant', 'services'),
+
+  # I am not sure if the type stuff should be here, in most cases,
+  # it simply maps to a single class.
+  # but is it more convenient to be here?
+  # allows users to globally select all of the backends that need to be configured
+  $db_type             = hiera('db_type', $::kickstack::params::db_type),
+  $rpc_type            = hiera('rpc_type', $::kickstack::params::rpc_type),
+  $cinder_backend      = hiera('cinder_backend', 'iscsi'),
+  $glance_backend      = hiera('glance_backend', 'file'),
+  $nova_compute_type   = hiera('compute_type', 'libvirt'),
+  # supports quantum and nova network
+  $network_type        = hiera('network_type', 'quantum'),
+  # what is the difference between these two?
   $quantum_network_type = $kickstack::params::quantum_network_type,
   $quantum_plugin = $kickstack::params::quantum_plugin,
-  $quantum_physnet = $kickstack::params::quantum_physnet,
-  $quantum_tenant_network_type = $kickstack::params::quantum_tenant_network_type,
-  $quantum_network_vlan_ranges = $kickstack::params::quantum_network_vlan_ranges,
-  $quantum_tunnel_id_ranges = $kickstack::params::quantum_tunnel_id_ranges,
-  $quantum_integration_bridge = $kickstack::params::quantum_integration_bridge,
-  $quantum_tunnel_bridge = $kickstack::params::quantum_tunnel_bridge,
-  $quantum_external_bridge = $kickstack::params::quantum_external_bridge,
-  $nic_management = $kickstack::params::nic_management,
-  $nic_data = $kickstack::params::nic_data,
-  $nic_external = $kickstack::params::nic_external,
-  $quantum_router_id = $kickstack::params::quantum_router_id,
-  $quantum_gateway_external_network_id = $kickstack::params::quantum_gateway_external_network_id,
-  $nova_compute_driver = $kickstack::params::nova_compute_driver, 
-  $nova_compute_libvirt_type = $kickstack::params::nova_compute_libvirt_type,
-  $xenapi_connection_url = $kickstack::params::xenapi_connection_url,
-  $xenapi_connection_username = $kickstack::params::xenapi_connection_username,
-  $xenapi_connection_password = $kickstack::params::xenapi_connection_password
+
+
+  $management_nic      = hiera('management_nic', 'eth2'),
+  # TODO - not sure if I need these
+  #$keystone_public_suffix = $kickstack::params::keystone_public_suffix,
+  #$keystone_admin_suffix = $kickstack::params::keystone_admin_suffix,
 ) inherits kickstack::params {
 
-  include ::exportfact
+  # should these be here? (probably)
   include openstack::repo
-  include kickstack::nameresolution
+  if $nameresolution == 'hosts' {
+    include kickstack::nameresolution
+  }
 
-  ::exportfact::import { "$fact_category": }
-} 
+}
