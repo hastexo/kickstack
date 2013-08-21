@@ -36,4 +36,8 @@ class kickstack::glance::api(
     value => get_ip_from_nic($management_nic),
   }
 
+  # this has to be included below glance::api b/c it inherits from it
+  # if we include it at the top, then it will not set the params for glance::api
+  include "kickstack::glance::backend::${glance_backend}"
+
 }
