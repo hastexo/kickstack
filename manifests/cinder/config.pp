@@ -1,47 +1,45 @@
 #
 class kickstack::cinder::config(
+  $db_password  = hiera('cinder_db_password'),
+  $db_user      = hiera('cinder_db_user', 'cinder'),
+  $db_name      = hiera('cinder_db_name', 'cinder'),
+  $db_host      = hiera('db_host', '127.0.0.1'),
+  $db_type      = hiera('db_type', $::kickstack::db_type),
+  $rpc_type     = hiera('rpc_type', $::kickstack::rpc_type),
+  $rpc_host     = hiera('rpc_host', '127.0.0.1'),
+  $rpc_user     = hiera('rpc_user', 'openstack'),
+  $rpc_password = hiera('rpc_password'),
+  $verbose      = hiera('verbose', $::kickstack::verbose),
+  $debug        = hiera('debug', $::kickstack::debug),
 ) inherits kickstack {
 
-  $sql_conn = getvar("${fact_prefix}cinder_sql_connection")
+  $sql_connection_string = "${db_type}://${db_user}:${db_password}@${db_host}/${db_name}"
 
-  case "$::kickstack::rpc" {
-    "rabbitmq": {
-      $rabbit_host = getvar("${fact_prefix}rabbit_host")
-      $rabbit_password = getvar("${fact_prefix}rabbit_password")
-      if $rabbit_host and $rabbit_password {
-        class { 'cinder':
-          sql_connection      => "$sql_conn",
-          rpc_backend         => 'cinder.openstack.common.rpc.impl_kombu',
-          rabbit_host         => "$rabbit_host",
-          rabbit_virtual_host => "$::kickstack::rabbit_virtual_host",
-          rabbit_userid       => "$::kickstack::rabbit_userid",
-          rabbit_password     => $rabbit_password,
-          verbose             => $::kickstack::verbose,
-          debug               => $::kickstack::debug,
-        }
-      }
-      else {
-        warning("Facts ${fact_prefix}rabbit_host or ${fact_prefix}rabbit_password unset, cannot configure cinder")
+  case $rpc_type {
+    'rabbitmq': {
+      class { '::cinder':
+        sql_connection      => $sql_connection_string,
+        rpc_backend         => 'cinder.openstack.common.rpc.impl_kombu',
+        rabbit_host         => $rpc_host,
+        rabbit_userid       => $rpc_user,
+        rabbit_password     => $rpc_password,
+        verbose             => $verbose,
+        debug               => $debug,
       }
     }
-    "qpid": {
-      $qpid_hostname = getvar("${fact_prefix}qpid_hostname")
-      $qpid_password = getvar("${fact_prefix}rabbit_password")
-      if $qpid_hostname and $qpid_password {
-        class { 'cinder':
-          sql_connection      => "$sql_conn",
-          rpc_backend         => 'cinder.openstack.common.rpc.impl_qpid',
-          qpid_hostname       => "$qpid_hostname",
-          qpid_realm          => "$::kickstack::qpid_realm",
-          qpid_username       => "$::kickstack::qpid_username",
-          qpid_password       => $qpid_password,
-          verbose             => $::kickstack::verbose,
-          debug               => $::kickstack::debug,
-        }
+    'qpid': {
+      class { '::cinder':
+        sql_connection      => $sql_connection_string,
+        rpc_backend         => 'cinder.openstack.common.rpc.impl_qpid',
+        qpid_hostname       => $rpc_host,
+        qpid_username       => $rpc_user,
+        qpid_password       => $rpc_password,
+        verbose             => $verbose,
+        debug               => $debug,
       }
-      else {
-        warning("Facts ${fact_prefix}qpid_hostname or ${fact_prefix}qpid_password unset, cannot configure cinder")
-      }
+    }
+    default: {
+      fail("Unsupported rpc_type: ${rpc_type}")
     }
   }
 }
