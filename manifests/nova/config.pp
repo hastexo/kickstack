@@ -1,44 +1,55 @@
 #
 class kickstack::nova::config(
+  $db_password        = hiera('nova_db_password'),
+  $db_user            = hiera('nova_db_user', 'nova'),
+  $db_name            = hiera('nova_db_name', 'nova'),
+  $db_host            = hiera('db_host', '127.0.0.1'),
+  $db_type            = hiera('db_type', $::kickstack::db_type),
+  $glance_api_servers = hiera('glance_api_servers', ['127.0.0.1:9292']),
+  $rpc_host           = hiera('rpc_host', '127.0.0.1'),
+  $rpc_user           = hiera('rpc_user', 'openstack'),
+  $rpc_password       = hiera('rpc_password'),
 ) inherits kickstack {
 
-  $sql_conn = getvar("${fact_prefix}nova_sql_connection")
-  $glance_api_servers = getvar("${fact_prefix}glance_api_host")
+  $sql_connection_string = "${db_type}://${db_user}:${db_password}@${db_host}/${db_name}"
 
-  case "$::kickstack::rpc" {
+  # NOTE I tried to reimplement this using class inheritance
+  # and by having kickstack::nova::config::{rabbitmq,qpid} classes
+  # but this did not work b/c classes do not work with class
+  # inheritance. The real solution here is to break out the rpc
+  # config from the nova base class
+  case $::kickstack::rpc_type {
+
     'rabbitmq': {
-      $rabbit_host = getvar("${::kickstack::fact_prefix}rabbit_host")
-      $rabbit_password = getvar("${fact_prefix}rabbit_password")
       class { '::nova':
-        ensure_package  => $::kickstack::package_ensure,
-        sql_connection  => $sql_conn,
-        rpc_backend     => 'nova.openstack.common.rpc.impl_kombu',
-        rabbit_host     => $rabbit_host,
-        rabbit_password => $rabbit_password,
-        rabbit_virtual_host => $::kickstack::rabbit_virtual_host,
-        rabbit_userid   => $::kickstack::rabbit_userid,
-        auth_strategy   => 'keystone',
-        verbose         => $::kickstack::verbose,
-        debug           => $::kickstack::debug,
-        glance_api_servers => "${glance_api_servers}:9292"
+        ensure_package      => $::kickstack::package_ensure,
+        sql_connection      => $sql_connection_string,
+        rpc_backend         => 'nova.openstack.common.rpc.impl_kombu',
+        rabbit_host         => $rpc_host,
+        rabbit_password     => $rpc_password,
+        rabbit_userid       => $rpc_user,
+        auth_strategy       => 'keystone',
+        verbose             => $::kickstack::verbose,
+        debug               => $::kickstack::debug,
+        glance_api_servers  => $glance_api_servers,
       }
     }
     'qpid': {
-      $qpid_hostname = getvar("${::kickstack::fact_prefix}qpid_hostname")
-      $qpid_password = getvar("${fact_prefix}qpid_password")
       class { '::nova':
-        ensure_package  => $::kickstack::package_ensure,
-        sql_connection  => $sql_conn,
-        rpc_backend     => 'nova.openstack.common.rpc.impl_qpid',
-        qpid_hostname   => $qpid_hostname,
-        qpid_password   => $qpid_password,
-        qpid_realm      => $::kickstack::qpid_realm,
-        qpid_user       => $::kickstack::qpid_user,
-        auth_strategy   => 'keystone',
-        verbose         => $::kickstack::verbose,
-        debug           => $::kickstack::debug,
-        glance_api_servers => "${glance_api_servers}:9292"
+        ensure_package     => $::kickstack::package_ensure,
+        sql_connection     => $sql_connection_string,
+        rpc_backend        => 'nova.openstack.common.rpc.impl_qpid',
+        qpid_hostname      => $rpc_host,
+        qpid_password      => $rpc_password,
+        qpid_username      => $rpc_user,
+        auth_strategy      => 'keystone',
+        verbose            => $::kickstack::verbose,
+        debug              => $::kickstack::debug,
+        glance_api_servers => $glance_api_servers,
       }
     }
-  } 
+    default: {
+      fail("Unsupported rpc_type: ${$::kickstack::rpc_type}")
+    }
+  }
 }
