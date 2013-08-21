@@ -39,7 +39,7 @@ describe 'kickstack::glance::api' do
         :glance_service_user   => 'user2',
         :service_tenant        => 'services2',
         :auth_internal_address => '11.0.0.3',
-        :registry_host         => '11.0.0.2',
+        :glance_registry_host  => '11.0.0.2',
         :verbose               => true,
         :debug                 => true,
       })

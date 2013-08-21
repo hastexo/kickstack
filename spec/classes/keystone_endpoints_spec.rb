@@ -20,6 +20,8 @@ describe 'kickstack::keystone::endpoints' do
       :quantum_public_address    => '127.0.0.1',
       :swift_service_password    => 'swift_service_pass',
       :swift_public_address      => '127.0.0.1',
+      :auth_public_address       => '127.0.0.1',
+      :auth_service_password     => 'keystone_pass',
     }
   end
 

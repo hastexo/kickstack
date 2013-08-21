@@ -7,7 +7,7 @@ describe 'kickstack::nova::api' do
 
   describe 'with only required parameters' do
     let :hiera_data do
-      req_params.merge(:quantum_secret => 'secret')
+      req_params.merge(:metadata_shared_secret => 'secret')
     end
     it 'should configure nova api' do
       should contain_package('python-eventlet').with(

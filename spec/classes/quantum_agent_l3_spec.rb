@@ -7,11 +7,11 @@ describe 'kickstack::quantum::agent::l3' do
 
   it 'should configure l3 agent' do
     should contain_class('kickstack::quantum::config')
-    should contain_vs_bridge('br-ex').with_ensure('present')
+    #should contain_vs_bridge('br-ex').with_ensure('present')
     should contain_class('quantum::agents::l3').with({
       :debug                       => false,
       :interface_driver            => 'quantum.agent.linux.interface.OVSInterfaceDriver',
-      :use_namespaces              => false,
+      :use_namespaces              => true,
       :external_network_bridge     => 'br-ex',
     })
   end
@@ -27,7 +27,7 @@ describe 'kickstack::quantum::agent::l3' do
       })
     end
     it 'should configure l3 agent' do
-      should contain_vs_bridge('br-2').with_ensure('present')
+      #should contain_vs_bridge('br-2').with_ensure('present')
       should contain_class('quantum::agents::l3').with({
         :debug                   => true,
         :interface_driver        => 'quantum.agent.linux.interface.BridgeInterfaceDriver',

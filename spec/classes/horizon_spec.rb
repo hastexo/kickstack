@@ -12,6 +12,8 @@ describe 'kickstack::horizon' do
       :ipaddress_eth2         => '11.0.0.1',
       :operatingsystemrelease => '6',
       :concat_basedir         => '/tmp',
+      :memorysize             => '10000',
+      :processorcount         => 2,
     }
   end
 
@@ -26,8 +28,6 @@ describe 'kickstack::horizon' do
       :secret_key            => 'secret',
       :cache_server_ip       => '127.0.0.1',
       :cache_server_port     => '11211',
-      :swift                 => false,
-      :quantum               => true,
       :keystone_host         => '127.0.0.1',
       :keystone_default_role => 'Member',
       :django_debug          => 'False',

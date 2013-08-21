@@ -33,7 +33,6 @@ describe 'kickstack::keystone::api' do
         :password       => 'admin_pass',
         :admin_tenant   => 'admin',
         :service_tenant => 'services',
-        :require        => 'Class[Keystone::Endpoint]',
       })
     end
   end

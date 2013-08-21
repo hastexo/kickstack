@@ -9,8 +9,8 @@ describe 'kickstack::quantum::agent::metadata' do
 
     let :hiera_data do
       req_params.merge({
-        :quantum_metadata_shared_secret => 'secret',
-        :nova_metadata_ip               => '10.0.0.1',
+        :metadata_shared_secret => 'secret',
+        :nova_metadata_ip       => '10.0.0.1',
       })
     end
 
