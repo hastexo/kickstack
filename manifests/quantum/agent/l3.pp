@@ -3,13 +3,15 @@ class kickstack::quantum::agent::l3(
   $network_type       = hiera('quantum_network_type', 'per-tenant-router'),
   $plugin             = hiera('quantum_plugin', 'ovs'),
   $external_bridge    = hiera('quantum_external_bridge', 'br-ex'),
+#  $router_id          = hiera('quantum_router_id', undef),
+#  $gateway_ext_net_id = hiera('quantum_gw_ext_net_id', undef),
 ) inherits kickstack {
 
   include kickstack::quantum::config
 
-  class { "vswitch::bridge":
-    name => 'br-ex'
-  } 
+  #vs_bridge { $external_bridge:
+  #  ensure => present,
+  #}
 
   $interface_driver = $plugin ? {
     'ovs'         => 'quantum.agent.linux.interface.OVSInterfaceDriver',
@@ -19,6 +21,14 @@ class kickstack::quantum::agent::l3(
     'per-tenant-router' => true,
     default             => false
   }
+  #$router_id = $network_type ? {
+  #  'provider-router' => $router_id,
+  #  default => undef
+  #}
+  #$gateway_external_network_id = $network_type ? {
+  #  'provider-router' => $gateway_external_network_id,
+  #  default           => undef
+  #}
 
   class { '::quantum::agents::l3':
     debug                       => $::kickstack::debug,
