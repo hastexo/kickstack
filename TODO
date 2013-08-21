@@ -1,0 +1,41 @@
+1. Can we just use plain class parameters? Do we need to make hiera calls?
+
+2. How do we handle password generation? Can we generate passwords and write them in hiera?
+
+- no, I don't think this should be done ahead of time. Instead, there should just be a script that we
+run that populates data into hiera
+
+3. seems like there are a few data forwarding issues that need to be resolved:
+
+- should I get some of the global data from the openstack class?
+-- it makes life a bit easier
+-- it requires a bit less code
+
+- should I use hiera definitions to lookup shared data?
+-- this will give me more power to do things like define how data maps to a single
+value when
+
+
+
+4. what is this thing?
+
+kickstack, is intended to be a wrapper around the openstack module.
+
+- makes data lookup easier
+-- binds many class parameters to the same value (reducing the amount of configuration required by the end user)
+- sets all required parameters
+- limits the amount of configuration that needs to be thought about by default
+- Assumes Puppet 3.x
+- Assumes that users will use data bindings to set most configuration parameters through their explicit class interfaces
+
+
+
+
+
+
+- if the results of getvar are not defined, the error message is TERRIBLE.
+I should do some better error handling
+
+
+
+- potentially add physical and volume group management back to iscsi backend...
