@@ -1,16 +1,14 @@
-class kickstack::nameresolution inherits kickstack {
+#
+# Class used to setup basic name resolution in /etc/hosts
+# using exported resources.
+#
+class kickstack::nameresolution() inherits kickstack {
 
-  case $::kickstack::name_resolution {
-    'hosts': {
-
-      @@host { "$hostname":
-        ip => getvar("ipaddress_${::kickstack::nic_management}"),
-        comment => "Managed by Puppet",
-        tag => "hostname"
-      }
-
-      Host <<| tag == "hostname" |>> {  }
-    }
+  @@host { $::hostname:
+    ip      => get_ip_from_nic($::kickstack::management_nic),
+    comment => 'Managed by Puppet',
+    tag     => 'hostname',
   }
+  Host <<| tag == 'hostname' |>> {  }
 }
 
