@@ -25,9 +25,6 @@ class kickstack (
   $nova_compute_type    = hiera('compute_type', 'libvirt'),
   # supports quantum and nova network
   $network_type         = hiera('network_type', 'quantum'),
-  # what is the difference between these two?
-  $quantum_network_type = hiera('quantum_network_type', 'gre'),
-  $quantum_plugin       = hiera('quantum_plugin', 'gre'),
   $management_nic       = hiera('management_nic', 'eth2'),
 ) inherits kickstack::params {
 
